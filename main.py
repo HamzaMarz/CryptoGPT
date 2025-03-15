@@ -126,7 +126,7 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & filters.Regex("^(محادثة عامة|تحليل الأخبار الإقتصادية|الحكم الشرعي|أسعار العملات)$"), handle_section))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    # run
+    # تشغيل البوت
     app.run_polling()
 
 if __name__ == "__main__":
