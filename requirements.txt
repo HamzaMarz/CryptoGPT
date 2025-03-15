@@ -1,5 +1,4 @@
 google
 google.generativeai
 telegram
-re
 requests
