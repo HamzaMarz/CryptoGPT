@@ -4,12 +4,12 @@ from telegram.ext import Application, CommandHandler, CallbackContext, MessageHa
 import re
 import requests
 
-# تحميل التوكن من ملف .env
+# Keys
 TOKEN = "8086483181:AAF5tegHNgpmI6OEKaZmXCcssAO3YlIjP1E"
 GEMINI_API_KEY = "AIzaSyBi4JfxNYmdXGw5zvozN1Dsgo9G8weRopo"
-COINMARKETCAP_API_KEY = "5d56cff1-d588-47f7-8236-0c3fbc5c1bdc"  # استبدل هذا بمفتاح API الخاص بك
+COINMARKETCAP_API_KEY = "5d56cff1-d588-47f7-8236-0c3fbc5c1bdc" 
 
-# إعداد Gemini API
+# Gemini API
 genai.configure(api_key=GEMINI_API_KEY)
 generation_config = {
     "temperature": 1.1,
@@ -24,14 +24,18 @@ model = genai.GenerativeModel(
 )
 chat_session = model.start_chat(history=[])
 
-# لوحة المفاتيح الرئيسية
+# Main Keyboard Buttons
 main_keyboard = ReplyKeyboardMarkup([["محادثة عامة", "تحليل الأخبار الإقتصادية", "الحكم الشرعي", "أسعار العملات"]], resize_keyboard=True)
 
-# لوحة المفاتيح داخل الأقسام
+# Finish Button
 section_keyboard = ReplyKeyboardMarkup([["إنهاء المحادثة"]], resize_keyboard=True)
 
+
 async def start(update: Update, context: CallbackContext) -> None:
-    await update.message.reply_text("مرحبًا! أنا بوت CryptoGPT، مساعدك في عالم العملات الرقمية. اختر القسم الذي تريد استخدامه:", reply_markup=main_keyboard)
+    await update.message.reply_text("""
+                                    مرحبًا! أنا بوت CryptoGPT،
+                                     مساعدك في عالم العملات الرقمية.
+                                     اختر القسم الذي تريد استخدامه:""", reply_markup=main_keyboard)
 
 async def help_command(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text("اختر القسم الذي تريد استخدامه:", reply_markup=main_keyboard)
@@ -42,7 +46,7 @@ async def handle_section(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text("اطرح سؤالك حول العملات الرقمية:", reply_markup=section_keyboard)
         context.user_data["section"] = "ask"
     elif text == "تحليل الأخبار الإقتصادية":
-        await update.message.reply_text("أدخل نص الخبر لتحليله:", reply_markup=section_keyboard)
+        await update.message.reply_text("أدخل رابط الخبر لتحليله:", reply_markup=section_keyboard)
         context.user_data["section"] = "analyze"
     elif text == "الحكم الشرعي":
         await update.message.reply_text("""
@@ -58,7 +62,7 @@ async def handle_section(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text("أدخل رمز العملة (مثل BTC أو ETH):", reply_markup=section_keyboard)
         context.user_data["section"] = "prices"
     else:
-        return # تجاهل الرسائل النصية التي لا تتطابق مع الأقسام
+        return # ignore wrong messages
 
 async def handle_message(update: Update, context: CallbackContext) -> None:
     text = update.message.text
@@ -76,7 +80,7 @@ async def handle_message(update: Update, context: CallbackContext) -> None:
 
         {question}
 
-        اجعل الإجابة مختصرة ومباشرة، مع تقديم معلومات موثوقة حول العملات الرقمية والتداول عند الحاجة.
+        اجعل الإجابة مختصرة ومباشرة
             إجابتك ستكون داخل بوت تلجرام، لذلك حسّن التنسيق حتى يكون ملائم واستخدم الايموجيز
         """
         response = chat_session.send_message(prompt)
@@ -115,18 +119,18 @@ async def handle_message(update: Update, context: CallbackContext) -> None:
         except (KeyError, TypeError) as e:
             await update.message.reply_text("لم يتم العثور على العملة أو حدث خطأ في البيانات.", reply_markup=section_keyboard)
     else:
-        return # تجاهل الرسائل النصية عندما لا يكون هناك قسم محدد
+        return #ignore wrong messages
 
 def main():
     app = Application.builder().token(TOKEN).build()
 
-    # إضافة الأوامر
+    # add commands for telegram bot
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & filters.Regex("^(محادثة عامة|تحليل الأخبار الإقتصادية|الحكم الشرعي|أسعار العملات)$"), handle_section))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    # تشغيل البوت
+    # run bot
     app.run_polling()
 
 if __name__ == "__main__":
