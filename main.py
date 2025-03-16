@@ -9,6 +9,7 @@ TOKEN = "8086483181:AAF5tegHNgpmI6OEKaZmXCcssAO3YlIjP1E"
 GEMINI_API_KEY = "AIzaSyBi4JfxNYmdXGw5zvozN1Dsgo9G8weRopo"
 COINMARKETCAP_API_KEY = "5d56cff1-d588-47f7-8236-0c3fbc5c1bdc" 
 
+
 # Gemini API
 genai.configure(api_key=GEMINI_API_KEY)
 generation_config = {
